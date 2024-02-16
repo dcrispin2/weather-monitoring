@@ -1,6 +1,7 @@
 package edu.iu.dcrispin.weathermonitoring.controllers;
 
 import edu.iu.dcrispin.weathermonitoring.model.CurrentConditionDisplay;
+import edu.iu.dcrispin.weathermonitoring.model.ForecastDisplay;
 import edu.iu.dcrispin.weathermonitoring.model.StatisticsDisplay;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +12,12 @@ import org.springframework.web.bind.annotation.*;
 public class DisplayController {
     private CurrentConditionDisplay currentConditionDisplay;
     private StatisticsDisplay statisticsDisplay;
+    private ForecastDisplay forecastDisplay;
 
-    public DisplayController(CurrentConditionDisplay currentConditionDisplay, StatisticsDisplay statisticsDisplay
-                             ) {
+    public DisplayController(CurrentConditionDisplay currentConditionDisplay, StatisticsDisplay statisticsDisplay, ForecastDisplay forecastDisplay) {
         this.currentConditionDisplay = currentConditionDisplay;
         this.statisticsDisplay = statisticsDisplay;
+        this.forecastDisplay = forecastDisplay;
     }
 
     @GetMapping
@@ -28,6 +30,9 @@ public class DisplayController {
         html += "</li>";
         html += "<li>";
         html += String.format("<a href=/displays/%s>%s</a>", statisticsDisplay.id(), statisticsDisplay.name());
+        html += "</li>";
+        html += "<li>";
+        html += String.format("<a href=/displays/%s>%s</a>", forecastDisplay.id(), forecastDisplay.name());
         html += "</li>";
         html += "</ul>";
         return ResponseEntity
@@ -46,6 +51,10 @@ public class DisplayController {
         }
         if (id.equalsIgnoreCase(statisticsDisplay.id())) {
             html = statisticsDisplay.display();
+            status = HttpStatus.FOUND;
+        }
+        if (id.equalsIgnoreCase(forecastDisplay.id())) {
+            html = forecastDisplay.display();
             status = HttpStatus.FOUND;
         }
         return ResponseEntity
@@ -67,7 +76,13 @@ public class DisplayController {
             html = "Subscribed!";
             status = HttpStatus.FOUND;
 
-        } else {
+        } else if (id.equalsIgnoreCase(forecastDisplay.id())) {
+            forecastDisplay.subscribe();
+            html = "Subscribed!";
+            status = HttpStatus.FOUND;
+
+        }
+        else {
             html = "The screen id is invalid.";
             status = HttpStatus.NOT_FOUND;
         }
@@ -88,7 +103,12 @@ public class DisplayController {
             statisticsDisplay.unsubscribe();
             html = "Unsubscribed!";
             status = HttpStatus.FOUND;
-        } else {
+        } else if (id.equalsIgnoreCase(forecastDisplay.id())) {
+            forecastDisplay.unsubscribe();
+            html = "Unsubscribed!";
+            status = HttpStatus.FOUND;
+        }
+        else {
             html = "The screen id is invalid.";
             status = HttpStatus.NOT_FOUND;
         }
